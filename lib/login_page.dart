@@ -1,7 +1,8 @@
-import 'package:chatting/home_page.dart';
+import 'package:chatting/user_notifier.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -24,12 +25,12 @@ class LoginPage extends StatelessWidget {
               onPressed: () async {
                 final user = await _login();
                 if (user != null) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomePage(user: user),
-                    ),
-                  );
+                  // after login in, if the user is logged in successfully,
+                  // we need to update the user in our `UserChangeNotifier`
+                  // so that all the listeners can be aware that we have a user
+                  // already.
+                  final userNotifier = context.read<UserChangeNotifier>();
+                  userNotifier.updateUser(user);
                 } else {
                   showDialog(
                     context: context,
